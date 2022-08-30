@@ -1,4 +1,4 @@
-from piece import Piece, PType, generatePiece
+from piece import Piece
 
 
 class Grid:
@@ -6,14 +6,14 @@ class Grid:
         self.width = width
         self.height = height
         self.grid = [[]]
-    
+
     def getGrid(self):
         return self.grid
 
     def isBlock(self, x: int, y: int):
         return self.grid[x][y]
-    
-    def tryFit(self, piece: Piece, rotate = False):
+
+    def tryFit(self, piece: Piece, rotate=False):
         for x, y in piece.getCoords():
             if self.isBlock(piece.x + x, piece.y + y):
                 return False

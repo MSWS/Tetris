@@ -1,14 +1,14 @@
-from enum import Enum
+from enum import Enum, auto
 
 
 class PType(Enum):
-    I = "cyan"
-    J = "blue"
-    L = "orange"
-    O = "yellow"
-    S = "green"
-    T = "purple"
-    Z = "red"
+    I = auto()
+    J = auto()
+    L = auto()
+    O = auto()
+    S = auto()
+    T = auto()
+    Z = auto()
 
 
 class Piece:
