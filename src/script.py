@@ -1,7 +1,8 @@
+from time import sleep
 import tkinter as tk
 
 from grid import Grid
-from src.game import Game
+from game import Game
 from style import RGBStyle
 
 
@@ -13,11 +14,13 @@ def main():
     style = RGBStyle(grid, canvas)
 
     game = Game(style, grid)
+    window.bind("<Key>", game.onKey)
 
     while True:
         game.tick()
         game.render()
         window.update()
+        sleep(0.01)
 
 
 if __name__ == "__main__":

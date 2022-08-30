@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
-from tkinter import Canvas, Tk
+from tkinter import Canvas
 from grid import Grid
-
-from piece import Piece
+from piece import PType, Piece
 
 
 class Style(ABC):
@@ -12,7 +11,7 @@ class Style(ABC):
         self.grid = grid
 
     @abstractmethod
-    def drawPiece(self, piece: Piece):
+    def drawPiece(self, piece: Piece) -> list:
         pass
 
     @abstractmethod
@@ -41,8 +40,8 @@ class RGBStyle(Style):
         )
         self.gridStop = (self.width / 4 * 3, self.height)
         self.pixelSize = min(
-            self.gridStop[1] - self.gridStart[0],
             (self.gridStop[0] - self.gridStart[0]) / self.grid.width,
+            (self.gridStop[1] - self.gridStart[1]) / self.grid.height,
         )
         print(
             "Width: {}, Height: {}, PixelSize: {}, GridStart: {}, GridStop: {}".format(
@@ -51,18 +50,34 @@ class RGBStyle(Style):
         )
 
     def drawPiece(self, piece: Piece):
-        color = "red"
-        pieces = []
+        pieces = piece.blocks or []
+        if not len(piece.blocks):
+            for x, y in piece.getCoords():
+                x, y = self.coordToPixel(x + piece.x, y + piece.y)
+                pieces.append(
+                    self.canvas.create_rectangle(
+                        x, y, x + self.pixelSize, y + self.pixelSize, fill=self.getColor(piece.type)
+                    )
+                )
+                piece.blocks = pieces
+
+        index = 0
         for x, y in piece.getCoords():
             x, y = self.coordToPixel(x + piece.x, y + piece.y)
-            pieces.append(
-                self.canvas.create_rectangle(
-                    x, y, x + self.pixelSize, y + self.pixelSize, fill=color
-                )
+            self.canvas.coords(
+                piece.blocks[index], x, y, x + self.pixelSize, y + self.pixelSize
             )
+            index += 1
+        return pieces
 
     def drawBoundaries(self):
-        self.canvas.create_rectangle(0, 0, self.width, self.height, fill="gray")
+        self.canvas.create_rectangle(
+            self.gridStart[0],
+            self.gridStop[1],
+            self.gridStop[0] - self.gridStart[0],
+            self.gridStop[1] - self.gridStart[1],
+            fill="gray",
+        )
 
     def coordToPixel(self, x, y):
         return (
@@ -82,3 +97,20 @@ class RGBStyle(Style):
             int((x - self.gridStart[0]) / self.pixelSize),
             int((y - self.gridStart[1]) / self.pixelSize),
         )
+    
+    def getColor(self, type: PType):
+      match type:
+        case PType.I:
+          return "cyan"
+        case PType.J:
+          return "blue"
+        case PType.L:
+          return "orange"
+        case PType.O:
+          return "yellow"
+        case PType.S:
+          return "green"
+        case PType.T:
+          return "purple"
+        case PType.Z:
+          return "red"
