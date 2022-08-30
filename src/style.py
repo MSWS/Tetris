@@ -47,6 +47,7 @@ class RGBStyle(Style):
             (self.gridStop[0] - self.gridStart[0]) / self.grid.width,
             (self.gridStop[1] - self.gridStart[1]) / self.grid.height,
         )
+        self.gridStop = (self.pixelSize * self.grid.width, self.pixelSize * self.grid.height)
         print(
             "Width: {}, Height: {}, PixelSize: {}, GridStart: {}, GridStop: {}".format(
                 self.width, self.height, self.pixelSize, self.gridStart, self.gridStop
