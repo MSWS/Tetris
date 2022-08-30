@@ -26,6 +26,10 @@ class Style(ABC):
     def pixelToCoord(self, x, y):
         pass
 
+    @abstractmethod
+    def clearBoard(self):
+        pass
+
 
 class RGBStyle(Style):
     name = "RGB"
@@ -56,7 +60,11 @@ class RGBStyle(Style):
                 x, y = self.coordToPixel(x + piece.x, y + piece.y)
                 pieces.append(
                     self.canvas.create_rectangle(
-                        x, y, x + self.pixelSize, y + self.pixelSize, fill=self.getColor(piece.type)
+                        x,
+                        y,
+                        x + self.pixelSize,
+                        y + self.pixelSize,
+                        fill=self.getColor(piece.type),
                     )
                 )
                 piece.blocks = pieces
@@ -73,7 +81,7 @@ class RGBStyle(Style):
     def drawBoundaries(self):
         self.canvas.create_rectangle(
             self.gridStart[0],
-            self.gridStop[1],
+            self.gridStart[1],
             self.gridStop[0] - self.gridStart[0],
             self.gridStop[1] - self.gridStart[1],
             fill="gray",
@@ -97,20 +105,23 @@ class RGBStyle(Style):
             int((x - self.gridStart[0]) / self.pixelSize),
             int((y - self.gridStart[1]) / self.pixelSize),
         )
-    
+
     def getColor(self, type: PType):
-      match type:
-        case PType.I:
-          return "cyan"
-        case PType.J:
-          return "blue"
-        case PType.L:
-          return "orange"
-        case PType.O:
-          return "yellow"
-        case PType.S:
-          return "green"
-        case PType.T:
-          return "purple"
-        case PType.Z:
-          return "red"
+        match type:
+            case PType.I:
+                return "cyan"
+            case PType.J:
+                return "blue"
+            case PType.L:
+                return "orange"
+            case PType.O:
+                return "yellow"
+            case PType.S:
+                return "green"
+            case PType.T:
+                return "purple"
+            case PType.Z:
+                return "red"
+
+    def clearBoard(self):
+        self.canvas.delete("all")

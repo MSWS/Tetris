@@ -1,3 +1,5 @@
+from cgitb import reset
+from mimetypes import init
 import random
 from grid import Grid
 from piece import PType, Piece
@@ -8,10 +10,7 @@ class Game:
     def __init__(self, style: Style, grid: Grid):
         self.style = style
         self.grid = grid
-        self.activePiece = None
-        self.ticks = 0
-        self.failTicks = 0
-        style.drawBoundaries()
+        self.reset()
 
     def tick(self):
         self.ticks += 1
@@ -19,6 +18,8 @@ class Game:
             return
         if self.activePiece is None:
             self.activePiece = self.generatePiece()
+            if not self.grid.tryFit(self.activePiece):
+                self.reset()
             return
         self.activePiece.y += 1
         if not self.grid.tryFit(self.activePiece):
@@ -30,6 +31,16 @@ class Game:
                 self.failTicks = 0
         else:
             self.failTicks = 0
+
+    def reset(self):
+        self.grid.clear()
+        self.style.clearBoard()
+        self.activePiece = None
+        self.ticks = 0
+        self.failTicks = 0
+        self.score = 0
+        self.alive = True
+        self.style.drawBoundaries()
 
     def render(self):
         if self.activePiece:
@@ -67,6 +78,8 @@ class Game:
                 self.activePiece.rotate(False)
             case _:
                 print("Unknown key: {}", event.keysym)
-        if not self.grid.tryFit(self.activePiece, lastRotate == self.activePiece.rotation):
+        if not self.grid.tryFit(
+            self.activePiece, 0 if lastRotate != self.activePiece.rotation else -1
+        ):
             self.activePiece.x, self.activePiece.y = lastCoord
-            self.activePiece.rotation = lastRotate
+            self.activePiece.setRotate(lastRotate)
