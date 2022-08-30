@@ -1,6 +1,7 @@
 import tkinter as tk
 
 from grid import Grid
+from src.game import Game
 from style import RGBStyle
 
 
@@ -10,8 +11,12 @@ def main():
     canvas = tk.Canvas(window, width=500, height=500)
     canvas.pack()
     style = RGBStyle(grid, canvas)
+
+    game = Game(style, grid)
+
     while True:
-        style.drawBoundaries()
+        game.tick()
+        game.render()
         window.update()
 
 

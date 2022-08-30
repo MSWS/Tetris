@@ -1,4 +1,7 @@
 from enum import Enum, auto
+from src.game import Game
+
+from src.style import Style
 
 
 class PType(Enum):
@@ -12,12 +15,13 @@ class PType(Enum):
 
 
 class Piece:
-    def __init__(self, type: PType):
+    def __init__(self, game: Game):
         self.type = type
         self.rotation = 0
         self.grid = generatePiece(type, self.rotation)
         self.x = 0
         self.y = 0
+        self.blocks = game.style.drawPiece(self)
 
     def getCoords(self):
         coords = []
