@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+from cmath import log
 from tkinter import Canvas
 from grid import Grid
 from piece import PType, Piece
@@ -27,6 +28,10 @@ class Style(ABC):
         pass
 
     @abstractmethod
+    def clearLine(self, y: int, pieces: list):
+        pass
+
+    @abstractmethod
     def clearBoard(self):
         pass
 
@@ -47,7 +52,10 @@ class RGBStyle(Style):
             (self.gridStop[0] - self.gridStart[0]) / self.grid.width,
             (self.gridStop[1] - self.gridStart[1]) / self.grid.height,
         )
-        self.gridStop = (self.pixelSize * self.grid.width, self.pixelSize * self.grid.height)
+        self.gridStop = (
+            self.pixelSize * self.grid.width,
+            self.pixelSize * self.grid.height,
+        )
         print(
             "Width: {}, Height: {}, PixelSize: {}, GridStart: {}, GridStop: {}".format(
                 self.width, self.height, self.pixelSize, self.gridStart, self.gridStop
@@ -123,6 +131,16 @@ class RGBStyle(Style):
                 return "purple"
             case PType.Z:
                 return "red"
+
+    def clearLine(self, y: int, pieces: set[Piece]):
+        print("clearline called for y: {} with {} blocks".format(y, len(pieces)))
+        for piece in pieces:
+            for block in piece.blocks:
+                bx, by = 0, self.canvas.coords(block)[1]
+                bx, by = self.pixelToCoord(bx, by)
+                if by == y:
+                    self.canvas.delete(block)
+                    piece.blocks.remove(block)
 
     def clearBoard(self):
         self.canvas.delete("all")

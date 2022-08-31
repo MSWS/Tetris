@@ -37,7 +37,9 @@ class Piece:
     def setRotate(self, rotation: int):
         self.rotation = rotation
         self.grid = generatePiece(self.type, self.rotation)
-
+    
+    def clearBlock(self, block):
+        self.blocks.remove(block)
 
 def generateCoords(p: PType, rot: int = 0):
     grid = generatePiece(p, rot)

@@ -27,10 +27,16 @@ class Game:
             self.failTicks += 1
             if self.failTicks > 3:
                 self.grid.addPiece(self.activePiece)
+                self.checkClear()
                 self.activePiece = None
                 self.failTicks = 0
         else:
             self.failTicks = 0
+
+    def checkClear(self):
+        for y, pieces in self.grid.getClearLines().items():
+            self.grid.clearLine(y)
+            self.style.clearLine(y, pieces)
 
     def reset(self):
         self.grid.clear()
@@ -57,27 +63,28 @@ class Game:
             return
         lastCoord = (self.activePiece.x, self.activePiece.y)
         lastRotate = self.activePiece.rotation
-        match event.keysym:
-            case "Left":
+        match event.keysym.lower():
+            case "left":
                 self.activePiece.x -= 1
-            case "Right":
+            case "right":
                 self.activePiece.x += 1
-            case "Up":  # Hard drop
+            case "up":  # Hard drop
                 while self.grid.tryFit(self.activePiece):
                     self.activePiece.y += 1
                 self.activePiece.y -= 1
                 self.style.drawPiece(self.activePiece)
                 self.grid.addPiece(self.activePiece)
+                self.checkClear()
                 self.activePiece = None
                 return
-            case "Down":  # Soft drop
+            case "down":  # Soft drop
                 self.activePiece.y += 1
             case "z":
                 self.activePiece.rotate(True)
             case "x":
                 self.activePiece.rotate(False)
             case _:
-                print("Unknown key: {}", event.keysym)
+                print("Unknown key: {}", event.keysym.lower())
         if not self.grid.tryFit(
             self.activePiece, 0 if lastRotate != self.activePiece.rotation else -1
         ):
