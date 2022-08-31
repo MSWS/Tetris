@@ -34,9 +34,9 @@ class Game:
             self.failTicks = 0
 
     def checkClear(self):
-        for y, pieces in self.grid.getClearLines().items():
+        for y in self.grid.getClearLines():
             self.grid.clearLine(y)
-            self.style.clearLine(y, self.grid.pieces)
+            self.style.clearLine(y, self.grid.blocks)
 
     def reset(self):
         self.grid.clear()

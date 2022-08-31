@@ -3,7 +3,7 @@ from cmath import log
 import enum
 from tkinter import Canvas
 from grid import Grid
-from piece import PType, Piece
+from piece import Block, PType, Piece
 
 
 class Style(ABC):
@@ -64,30 +64,30 @@ class RGBStyle(Style):
         )
 
     def drawPiece(self, piece: Piece):
-        pieces = piece.blocks or []
+        blocks = piece.blocks or []
         if not len(piece.blocks):
             for x, y in piece.getCoords():
-                x, y = self.coordToPixel(x + piece.x, y + piece.y)
-                pieces.append(
-                    self.canvas.create_rectangle(
-                        x,
-                        y,
-                        x + self.pixelSize,
-                        y + self.pixelSize,
-                        fill=self.getColor(piece.type),
-                    )
+                bx, by = self.coordToPixel(x + piece.x, y + piece.y)
+                id = self.canvas.create_rectangle(
+                    bx,
+                    by,
+                    x + self.pixelSize,
+                    y + self.pixelSize,
+                    fill=self.getColor(piece.type),
                 )
-                piece.blocks = pieces
+                blocks.append(Block(piece, x, y, id))
+                piece.blocks = blocks
 
         index = 0
         for x, y in piece.getCoords():
-            x, y = self.coordToPixel(x + piece.x, y + piece.y)
+            bx, by = self.coordToPixel(x + piece.x, y + piece.y)
             self.canvas.coords(
-                piece.blocks[index], x, y, x +
-                self.pixelSize, y + self.pixelSize
+                piece.blocks[index].id, bx, by, bx + self.pixelSize, by + self.pixelSize
             )
+            piece.blocks[index].x = x
+            piece.blocks[index].y = y
             index += 1
-        return pieces
+        return blocks
 
     def drawBoundaries(self):
         self.canvas.create_rectangle(
@@ -134,20 +134,15 @@ class RGBStyle(Style):
             case PType.Z:
                 return "red"
 
-    def clearLine(self, y: int, pieces: set[Piece]):
-        for piece in pieces[y]:
-            if not piece:
+    def clearLine(self, y: int, blocks: set[Block]):
+        for by in range(len(blocks)):
+            if by != y:
                 continue
-            for block in piece.blocks:
-                bx, by = 0, self.canvas.coords(block)[1]
-                bx, by = self.pixelToCoord(bx, by)
-                if by == y:
-                    self.canvas.delete(block)
-                    piece.blocks.remove(block)
-        for row in pieces:
-            for piece in row:
-                if piece:
-                    self.drawPiece(piece)
+            for bx in range(len(blocks[by])):
+                if blocks[by][bx] is None:
+                    continue
+                self.canvas.delete(blocks[by][bx].id)
+                # blocks[by][bx] = None
 
     def clearBoard(self):
         self.canvas.delete("all")

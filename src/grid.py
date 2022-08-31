@@ -42,25 +42,20 @@ class Grid:
     def addPiece(self, piece: Piece):
         for x, y in piece.getCoords():
             self.grid[piece.y + y][piece.x + x] = True
-            self.pieces[piece.y + y][piece.x + x] = piece
+            self.blocks[piece.y + y][piece.x + x] = piece.getBlock(x, y)
 
     def clearLine(self, y: int):
         for x in range(self.width):
             self.grid[y][x] = False
-        gridCopy = self.grid
+        copy = self.grid
         for y in range(y):
             if y > 0:
                 self.grid[y] = gridCopy[y - 1]
             else:
                 self.grid[y] = [False for x in range(self.width)]
-            uniquePieces = set(self.pieces[y])
-            for piece in uniquePieces:
-                if piece:
-                    piece.y += 1
-        self.grid = gridCopy
 
     def getClearLines(self, start=0):
-        lines = {}
+        lines = []
         for y in range(start, self.height):
             clear = True
             for x in range(self.width):
@@ -68,10 +63,7 @@ class Grid:
                     clear = False
                     break
             if clear:
-                pieces = []
-                for x in range(self.width):
-                    pieces.append(self.pieces[y][x])
-                lines[y] = pieces
+                lines.append(y)
         return lines
 
     def clear(self):

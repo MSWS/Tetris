@@ -20,12 +20,20 @@ class Piece:
         self.y = 0
         self.blocks = []
         self.blocks = game.style.drawPiece(self)
+        for b in self.blocks:
+            print("block: ", b.x, b.y)
 
     def getCoords(self):
         coords = []
         for i in range(4):
             coords.append((self.grid[0][i], self.grid[1][i]))
         return coords
+
+    def getBlock(self, x, y):
+        for block in self.blocks:
+            if block.x == x and block.y == y:
+                return block
+        return None
 
     def rotate(self, counter=True):
         self.rotation += 1 if counter else -1
@@ -37,9 +45,18 @@ class Piece:
     def setRotate(self, rotation: int):
         self.rotation = rotation
         self.grid = generatePiece(self.type, self.rotation)
-    
+
     def clearBlock(self, block):
         self.blocks.remove(block)
+
+
+class Block:
+    def __init__(self, piece: Piece, x: int, y: int, id):
+        self.piece = piece
+        self.x = x
+        self.y = y
+        self.id = id
+
 
 def generateCoords(p: PType, rot: int = 0):
     grid = generatePiece(p, rot)
