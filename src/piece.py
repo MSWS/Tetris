@@ -16,7 +16,7 @@ class Piece:
         self.type = type
         self.rotation = 0
         self.grid = generatePiece(type, self.rotation)
-        self.x = game.grid.width // 2
+        self.x = game.grid.width // 2 - 1
         self.y = 0
         self.blocks = []
         self.blocks = game.style.drawPiece(self)

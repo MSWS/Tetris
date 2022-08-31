@@ -36,7 +36,7 @@ class Game:
     def checkClear(self):
         for y, pieces in self.grid.getClearLines().items():
             self.grid.clearLine(y)
-            self.style.clearLine(y, pieces)
+            self.style.clearLine(y, self.grid.pieces)
 
     def reset(self):
         self.grid.clear()
@@ -56,6 +56,7 @@ class Game:
         type = random.choice(
             [PType.I, PType.J, PType.L, PType.O, PType.S, PType.T, PType.Z]
         )
+        # type = PType.I
         return Piece(self, type)
 
     def onKey(self, event):

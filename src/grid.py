@@ -5,8 +5,8 @@ class Grid:
     def __init__(self, width: int, height: int):
         self.width = width
         self.height = height
-        self.grid = [[False for x in range(width)] for y in range(height)]
-        self.pieces = [[None for x in range(height)] for y in range(width)]
+        self.grid = [[False for y in range(width)] for x in range(height)]
+        self.pieces = [[None for y in range(width)] for x in range(height)]
 
     def getGrid(self):
         return self.grid
@@ -42,19 +42,22 @@ class Grid:
     def addPiece(self, piece: Piece):
         for x, y in piece.getCoords():
             self.grid[piece.y + y][piece.x + x] = True
-            self.pieces[piece.x + x][piece.y + y] = piece
+            self.pieces[piece.y + y][piece.x + x] = piece
 
     def clearLine(self, y: int):
         for x in range(self.width):
             self.grid[y][x] = False
-            self.pieces[x][y] = None
-        copy = self.grid
+        gridCopy = self.grid
         for y in range(y):
             if y > 0:
-                self.grid[y] = copy[y - 1]
+                self.grid[y] = gridCopy[y - 1]
             else:
                 self.grid[y] = [False for x in range(self.width)]
-        self.grid = copy
+            uniquePieces = set(self.pieces[y])
+            for piece in uniquePieces:
+                if piece:
+                    piece.y += 1
+        self.grid = gridCopy
 
     def getClearLines(self, start=0):
         lines = {}
@@ -67,9 +70,10 @@ class Grid:
             if clear:
                 pieces = []
                 for x in range(self.width):
-                    pieces.append(self.pieces[x][y])
+                    pieces.append(self.pieces[y][x])
                 lines[y] = pieces
         return lines
 
     def clear(self):
-        self.grid = [[False for x in range(self.width)] for y in range(self.height)]
+        self.grid = [[False for x in range(self.width)]
+                     for y in range(self.height)]
