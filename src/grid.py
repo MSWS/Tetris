@@ -6,7 +6,7 @@ class Grid:
         self.width = width
         self.height = height
         self.grid = [[False for y in range(width)] for x in range(height)]
-        self.pieces = [[None for y in range(width)] for x in range(height)]
+        self.blocks = [[None for y in range(width)] for x in range(height)]
 
     def getGrid(self):
         return self.grid
@@ -42,20 +42,18 @@ class Grid:
     def addPiece(self, piece: Piece):
         for x, y in piece.getCoords():
             self.grid[piece.y + y][piece.x + x] = True
-            self.blocks[piece.y + y][piece.x + x] = piece.getBlock(x, y)
+            self.blocks[piece.y + y][piece.x + x] = piece.getBlock(
+                piece.x + x, piece.y + y
+            )
 
     def clearLine(self, y: int):
-        for x in range(self.width):
-            self.grid[y][x] = False
-        copy = self.grid
-        for y in range(y):
-            if y > 0:
-                self.grid[y] = gridCopy[y - 1]
-            else:
-                self.grid[y] = [False for x in range(self.width)]
+        self.grid[y] = [False for x in range(self.width)]
+        copy = self.grid.copy()
+        for by in range(1, y + 1):
+            self.grid[by] = copy[by - 1]
+        self.grid[0] = [False for x in range(self.width)]
 
-    def getClearLines(self, start=0):
-        lines = []
+    def getClearLine(self, start=0):
         for y in range(start, self.height):
             clear = True
             for x in range(self.width):
@@ -63,9 +61,25 @@ class Grid:
                     clear = False
                     break
             if clear:
-                lines.append(y)
-        return lines
+                return y
+        return -1
 
     def clear(self):
-        self.grid = [[False for x in range(self.width)]
-                     for y in range(self.height)]
+        self.grid = [[False for y in range(self.width)] for x in range(self.height)]
+        self.blocks = [[None for y in range(self.width)] for x in range(self.height)]
+
+    def toString(self):
+        string = ""
+        for y in range(self.height):
+            for x in range(self.width):
+                string += "X" if self.grid[y][x] else " "
+            string += "\n"
+        return string
+
+    def blocksToString(self):
+        string = ""
+        for y in range(self.height):
+            for x in range(self.width):
+                string += "X" if self.grid[y][x] else " "
+            string += "\n"
+        return string

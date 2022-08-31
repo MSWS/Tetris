@@ -1,5 +1,3 @@
-from cgitb import reset
-from mimetypes import init
 import random
 from grid import Grid
 from piece import PType, Piece
@@ -11,6 +9,7 @@ class Game:
         self.style = style
         self.grid = grid
         self.reset()
+        self.lastGrid = ""
 
     def tick(self):
         self.ticks += 1
@@ -32,11 +31,24 @@ class Game:
                 self.failTicks = 0
         else:
             self.failTicks = 0
+        gs = self.grid.toString()
+        bs = self.grid.blocksToString()
+        if gs != bs:
+            print("Grid and blocks don't match!")
+            print("Grid:")
+            print(gs)
+            print("Blocks:")
+            print(bs)
+        elif gs != self.lastGrid:
+            print(bs)
+            self.lastGrid = gs
 
     def checkClear(self):
-        for y in self.grid.getClearLines():
-            self.grid.clearLine(y)
-            self.style.clearLine(y, self.grid.blocks)
+        line = self.grid.getClearLine()
+        while line != -1:
+            self.style.clearLine(line, self.grid.blocks)
+            self.grid.clearLine(line)
+            line = self.grid.getClearLine()
 
     def reset(self):
         self.grid.clear()
@@ -50,13 +62,12 @@ class Game:
 
     def render(self):
         if self.activePiece:
-            self.style.drawPiece(self.activePiece)
+            self.activePiece.blocks = self.style.drawPiece(self.activePiece)
 
     def generatePiece(self):
         type = random.choice(
             [PType.I, PType.J, PType.L, PType.O, PType.S, PType.T, PType.Z]
         )
-        # type = PType.I
         return Piece(self, type)
 
     def onKey(self, event):
@@ -73,7 +84,7 @@ class Game:
                 while self.grid.tryFit(self.activePiece):
                     self.activePiece.y += 1
                 self.activePiece.y -= 1
-                self.style.drawPiece(self.activePiece)
+                self.activePiece.blocks = self.style.drawPiece(self.activePiece)
                 self.grid.addPiece(self.activePiece)
                 self.checkClear()
                 self.activePiece = None

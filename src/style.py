@@ -21,6 +21,10 @@ class Style(ABC):
         pass
 
     @abstractmethod
+    def drawBlock(self, x, y):
+        pass
+
+    @abstractmethod
     def coordToPixel(self, x, y):
         pass
 
@@ -63,29 +67,36 @@ class RGBStyle(Style):
             )
         )
 
-    def drawPiece(self, piece: Piece):
-        blocks = piece.blocks or []
-        if not len(piece.blocks):
-            for x, y in piece.getCoords():
-                bx, by = self.coordToPixel(x + piece.x, y + piece.y)
-                id = self.canvas.create_rectangle(
-                    bx,
-                    by,
-                    x + self.pixelSize,
-                    y + self.pixelSize,
-                    fill=self.getColor(piece.type),
+    def drawBlock(self, x: int, y: int, id, color):
+        bx, by = self.coordToPixel(x, y)
+        if not id:
+            if y > 3:
+                raise Exception(
+                    "Block created lower than expected ({}, {})".format(x, y)
                 )
-                blocks.append(Block(piece, x, y, id))
-                piece.blocks = blocks
-
-        index = 0
-        for x, y in piece.getCoords():
-            bx, by = self.coordToPixel(x + piece.x, y + piece.y)
-            self.canvas.coords(
-                piece.blocks[index].id, bx, by, bx + self.pixelSize, by + self.pixelSize
+            id = self.canvas.create_rectangle(
+                bx, by, bx + self.pixelSize, by + self.pixelSize, fill=color
             )
-            piece.blocks[index].x = x
-            piece.blocks[index].y = y
+            return id
+        self.canvas.coords(id, bx, by, bx + self.pixelSize, by + self.pixelSize)
+        return id
+
+    def drawPiece(self, piece: Piece):
+        index = 0
+        blocks = []
+        for x, y in piece.getCoords():
+            b = Block(
+                piece,
+                piece.x + x,
+                piece.y + y,
+                self.drawBlock(
+                    piece.x + x,
+                    piece.y + y,
+                    piece.blocks[index].id if index < len(piece.blocks) else None,
+                    self.getColor(piece.type),
+                ),
+            )
+            blocks.append(b)
             index += 1
         return blocks
 
@@ -136,13 +147,20 @@ class RGBStyle(Style):
 
     def clearLine(self, y: int, blocks: set[Block]):
         for by in range(len(blocks)):
-            if by != y:
+            if by < y:
+                print("{}: {}".format(by, blocks[by]))
+                for block in blocks[by]:
+                    if not block:
+                        continue
+                    block.y += 1
+                    self.drawBlock(
+                        block.x, block.y, block.id, self.getColor(block.piece.type)
+                    )
+        for bx in range(len(blocks[y])):
+            if blocks[y][bx] is None:
                 continue
-            for bx in range(len(blocks[by])):
-                if blocks[by][bx] is None:
-                    continue
-                self.canvas.delete(blocks[by][bx].id)
-                # blocks[by][bx] = None
+            self.canvas.delete(blocks[y][bx].id)
+            blocks[y][bx] = None
 
     def clearBoard(self):
         self.canvas.delete("all")

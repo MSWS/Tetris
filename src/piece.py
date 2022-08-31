@@ -1,3 +1,4 @@
+from distutils.log import error
 from enum import Enum, auto
 
 
@@ -13,6 +14,7 @@ class PType(Enum):
 
 class Piece:
     def __init__(self, game, type: PType):
+        self.game = game
         self.type = type
         self.rotation = 0
         self.grid = generatePiece(type, self.rotation)
@@ -20,8 +22,6 @@ class Piece:
         self.y = 0
         self.blocks = []
         self.blocks = game.style.drawPiece(self)
-        for b in self.blocks:
-            print("block: ", b.x, b.y)
 
     def getCoords(self):
         coords = []
@@ -33,7 +33,7 @@ class Piece:
         for block in self.blocks:
             if block.x == x and block.y == y:
                 return block
-        return None
+        raise Exception("Block not found at {}, {}".format(x, y))
 
     def rotate(self, counter=True):
         self.rotation += 1 if counter else -1
