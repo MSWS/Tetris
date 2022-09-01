@@ -11,6 +11,7 @@ class Game:
         self.reset()
         self.lastGrid = ""
         self.pause = False
+        self.bag = []
 
     def tick(self):
         self.ticks += 1
@@ -66,11 +67,21 @@ class Game:
             self.activePiece.blocks = self.style.drawPiece(self.activePiece)
 
     def generatePiece(self):
-        # type = random.choice(
-        #     [PType.I, PType.J, PType.L, PType.O, PType.S, PType.T, PType.Z]
-        # )
-        type = PType.I
+        type = self.getNextPiece()
         return Piece(self, type)
+
+    def getNextPiece(self):
+        if len(self.bag) == 0:
+            self.bag = list(PType)
+            random.shuffle(self.bag)
+        toMake = list(PType)
+        for piece in self.bag:
+            if piece in toMake:
+                toMake.remove(piece)
+
+        print(len(toMake), toMake)
+        self.bag.insert(0, toMake[0] if len(toMake) > 0 else random.choice(list(PType)))
+        return self.bag.pop()
 
     def onKey(self, event):
         if self.activePiece is None:

@@ -40,6 +40,10 @@ class Style(ABC):
     def clearBoard(self):
         pass
 
+    @abstractmethod
+    def drawNext(self, pieces: list[Piece]):
+        pass
+
 
 class RGBStyle(Style):
     name = "RGB"
@@ -61,19 +65,10 @@ class RGBStyle(Style):
             self.pixelSize * self.grid.width,
             self.pixelSize * self.grid.height,
         )
-        print(
-            "Width: {}, Height: {}, PixelSize: {}, GridStart: {}, GridStop: {}".format(
-                self.width, self.height, self.pixelSize, self.gridStart, self.gridStop
-            )
-        )
 
     def drawBlock(self, x: int, y: int, id, color):
         bx, by = self.coordToPixel(x, y)
         if not id:
-            if y > 3:
-                raise Exception(
-                    "Block created lower than expected ({}, {})".format(x, y)
-                )
             id = self.canvas.create_rectangle(
                 bx, by, bx + self.pixelSize, by + self.pixelSize, fill=color
             )
@@ -101,7 +96,9 @@ class RGBStyle(Style):
         return blocks
 
     def drawBoundaries(self):
-        self.canvas.create_rectangle(0, 0, self.width, self.height, fill="#333", outline="#ddd")
+        self.canvas.create_rectangle(
+            0, 0, self.width, self.height, fill="#333", outline="#ddd"
+        )
         self.canvas.create_rectangle(
             self.gridStart[0],
             self.gridStart[1],
