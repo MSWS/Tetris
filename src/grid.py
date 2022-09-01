@@ -48,19 +48,16 @@ class Grid:
 
     def clearLine(self, y: int):
         self.grid[y] = [False for x in range(self.width)]
-        copy = self.grid.copy()
+        gridCopy = self.grid.copy()
+        blockCopy = self.blocks.copy()
         for by in range(1, y + 1):
-            self.grid[by] = copy[by - 1]
+            self.grid[by] = gridCopy[by - 1]
+            self.blocks[by] = blockCopy[by - 1]
         self.grid[0] = [False for x in range(self.width)]
 
     def getClearLine(self, start=0):
         for y in range(start, self.height):
-            clear = True
-            for x in range(self.width):
-                if not self.grid[y][x]:
-                    clear = False
-                    break
-            if clear:
+            if all(self.grid[y]):
                 return y
         return -1
 

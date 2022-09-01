@@ -10,10 +10,11 @@ class Game:
         self.grid = grid
         self.reset()
         self.lastGrid = ""
+        self.pause = False
 
     def tick(self):
         self.ticks += 1
-        if self.ticks % 10 != 0:
+        if self.ticks % 10 != 0 or self.pause:
             return
         if self.activePiece is None:
             self.activePiece = self.generatePiece()
@@ -73,6 +74,11 @@ class Game:
     def onKey(self, event):
         if self.activePiece is None:
             return
+        if event.keysym.lower() == "space":
+            self.pause = not self.pause
+            return
+        if self.pause:
+            return
         lastCoord = (self.activePiece.x, self.activePiece.y)
         lastRotate = self.activePiece.rotation
         match event.keysym.lower():
@@ -92,11 +98,11 @@ class Game:
             case "down":  # Soft drop
                 self.activePiece.y += 1
             case "z":
-                self.activePiece.rotate(True)
-            case "x":
                 self.activePiece.rotate(False)
+            case "x":
+                self.activePiece.rotate(True)
             case _:
-                print("Unknown key: {}", event.keysym.lower())
+                print("Unknown key:", event.keysym.lower())
         if not self.grid.tryFit(
             self.activePiece, 0 if lastRotate != self.activePiece.rotation else -1
         ):

@@ -148,7 +148,6 @@ class RGBStyle(Style):
     def clearLine(self, y: int, blocks: set[Block]):
         for by in range(len(blocks)):
             if by < y:
-                print("{}: {}".format(by, blocks[by]))
                 for block in blocks[by]:
                     if not block:
                         continue
