@@ -66,9 +66,10 @@ class Game:
             self.activePiece.blocks = self.style.drawPiece(self.activePiece)
 
     def generatePiece(self):
-        type = random.choice(
-            [PType.I, PType.J, PType.L, PType.O, PType.S, PType.T, PType.Z]
-        )
+        # type = random.choice(
+        #     [PType.I, PType.J, PType.L, PType.O, PType.S, PType.T, PType.Z]
+        # )
+        type = PType.I
         return Piece(self, type)
 
     def onKey(self, event):

@@ -52,7 +52,7 @@ class RGBStyle(Style):
             self.canvas.winfo_reqwidth(),
             self.canvas.winfo_reqheight(),
         )
-        self.gridStop = (self.width / 4 * 3, self.height)
+        self.gridStop = (int(self.width * 0.8), self.height)
         self.pixelSize = min(
             (self.gridStop[0] - self.gridStart[0]) / self.grid.width,
             (self.gridStop[1] - self.gridStart[1]) / self.grid.height,
@@ -101,6 +101,7 @@ class RGBStyle(Style):
         return blocks
 
     def drawBoundaries(self):
+        self.canvas.create_rectangle(0, 0, self.width, self.height, fill="#333", outline="#ddd")
         self.canvas.create_rectangle(
             self.gridStart[0],
             self.gridStart[1],
