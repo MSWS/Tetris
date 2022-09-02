@@ -80,6 +80,7 @@ class Game:
             if piece in toMake:
                 toMake.remove(piece)
 
+        print(len(self.bag), self.bag)
         self.bag.insert(0, toMake[0] if len(toMake) > 0 else random.choice(list(PType)))
         return self.bag.pop()
 

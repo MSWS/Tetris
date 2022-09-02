@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+import asyncio
+import threading
 from tkinter import Canvas
 from grid import Grid
 from piece import Block, PType, Piece, generateCoords, generatePiece
@@ -67,11 +69,14 @@ class RGBStyle(Style):
 
     def drawBlock(self, x: int, y: int, id, color):
         bx, by = self.coordToPixel(x, y)
+
         if not id:
             id = self.canvas.create_rectangle(
                 bx, by, bx + self.pixelSize, by + self.pixelSize, fill=color
             )
             return id
+        if id not in self.canvas.find_all():
+            raise Exception("Block ID not found ({})".format(id))
         if color:
             self.canvas.itemconfig(id, fill=color)
         self.canvas.coords(id, bx, by, bx + self.pixelSize, by + self.pixelSize)
@@ -172,15 +177,16 @@ class RGBStyle(Style):
 
     def clearBoard(self):
         self.canvas.delete("all")
+        self.nextPieces = []
 
     def drawNext(self, pieces: list[PType]):
         for i in range(min(len(pieces), 4)):
             next = self.nextPieces[i] if i < len(self.nextPieces) else None
             type = pieces[len(pieces) - 1 - i]
             if not next:
-                next = Piece(self.grid.width // 2 - 1, self, type)
+                next = Piece(self.grid.width, self, type)
                 self.nextPieces.append(next)
-            next.x = self.grid.width + 2
+            next.x = self.grid.width + 1
             next.y = i * 4 + 1
             next.type = type
             next.grid = generatePiece(next.type)
