@@ -1,9 +1,7 @@
 from abc import ABC, abstractmethod
-from cmath import log
-import enum
 from tkinter import Canvas
 from grid import Grid
-from piece import Block, PType, Piece
+from piece import Block, PType, Piece, generateCoords, generatePiece
 
 
 class Style(ABC):
@@ -41,7 +39,7 @@ class Style(ABC):
         pass
 
     @abstractmethod
-    def drawNext(self, pieces: list[Piece]):
+    def drawNext(self, pieces: list[PType]):
         pass
 
 
@@ -65,6 +63,7 @@ class RGBStyle(Style):
             self.pixelSize * self.grid.width,
             self.pixelSize * self.grid.height,
         )
+        self.nextPieces = []
 
     def drawBlock(self, x: int, y: int, id, color):
         bx, by = self.coordToPixel(x, y)
@@ -73,6 +72,8 @@ class RGBStyle(Style):
                 bx, by, bx + self.pixelSize, by + self.pixelSize, fill=color
             )
             return id
+        if color:
+            self.canvas.itemconfig(id, fill=color)
         self.canvas.coords(id, bx, by, bx + self.pixelSize, by + self.pixelSize)
         return id
 
@@ -106,6 +107,15 @@ class RGBStyle(Style):
             self.gridStop[1] - self.gridStart[1],
             fill="gray",
         )
+        # Draw y coordinates
+        for y in range(self.grid.height):
+            self.canvas.create_text(
+                self.gridStop[0] + 15,
+                self.gridStart[1] + y * self.pixelSize,
+                text=str(y),
+                anchor="ne",
+                fill="white",
+            )
 
     def coordToPixel(self, x, y):
         return (
@@ -144,15 +154,16 @@ class RGBStyle(Style):
                 return "red"
 
     def clearLine(self, y: int, blocks: set[Block]):
-        for by in range(len(blocks)):
-            if by < y:
-                for block in blocks[by]:
-                    if not block:
-                        continue
-                    block.y += 1
-                    self.drawBlock(
-                        block.x, block.y, block.id, self.getColor(block.piece.type)
-                    )
+        for by in range(y):
+            if not any(blocks[by]):
+                continue
+            for block in blocks[by]:
+                if not block:
+                    continue
+                block.y += 1
+                self.drawBlock(
+                    block.x, block.y, block.id, self.getColor(block.piece.type)
+                )
         for bx in range(len(blocks[y])):
             if blocks[y][bx] is None:
                 continue
@@ -161,3 +172,16 @@ class RGBStyle(Style):
 
     def clearBoard(self):
         self.canvas.delete("all")
+
+    def drawNext(self, pieces: list[PType]):
+        for i in range(min(len(pieces), 4)):
+            next = self.nextPieces[i] if i < len(self.nextPieces) else None
+            type = pieces[len(pieces) - 1 - i]
+            if not next:
+                next = Piece(self.grid.width // 2 - 1, self, type)
+                self.nextPieces.append(next)
+            next.x = self.grid.width + 2
+            next.y = i * 4 + 1
+            next.type = type
+            next.grid = generatePiece(next.type)
+            self.drawPiece(next)

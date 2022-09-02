@@ -13,15 +13,14 @@ class PType(Enum):
 
 
 class Piece:
-    def __init__(self, game, type: PType):
-        self.game = game
+    def __init__(self, x: int, style, type: PType):
         self.type = type
         self.rotation = 0
         self.grid = generatePiece(type, self.rotation)
-        self.x = game.grid.width // 2 - 1
+        self.x = x
         self.y = 0
         self.blocks = []
-        self.blocks = game.style.drawPiece(self)
+        self.blocks = style.drawPiece(self)
 
     def getCoords(self):
         coords = []

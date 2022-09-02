@@ -42,7 +42,7 @@ class Game:
             print("Blocks:")
             print(bs)
         elif gs != self.lastGrid:
-            print(bs)
+            # print(bs)
             self.lastGrid = gs
 
     def checkClear(self):
@@ -68,7 +68,8 @@ class Game:
 
     def generatePiece(self):
         type = self.getNextPiece()
-        return Piece(self, type)
+        self.style.drawNext(self.bag)
+        return Piece(self.grid.width // 2 - 1, self.style, type)
 
     def getNextPiece(self):
         if len(self.bag) == 0:
@@ -79,7 +80,6 @@ class Game:
             if piece in toMake:
                 toMake.remove(piece)
 
-        print(len(toMake), toMake)
         self.bag.insert(0, toMake[0] if len(toMake) > 0 else random.choice(list(PType)))
         return self.bag.pop()
 
