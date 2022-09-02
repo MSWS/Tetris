@@ -13,7 +13,7 @@ class Style(ABC):
         self.grid = grid
 
     @abstractmethod
-    def drawPiece(self, piece: Piece) -> list:
+    def drawPiece(self, piece: Piece, isActive=False) -> list:
         pass
 
     @abstractmethod
@@ -66,6 +66,7 @@ class RGBStyle(Style):
             self.pixelSize * self.grid.height,
         )
         self.nextPieces = []
+        self.previewPieces = []
 
     def drawBlock(self, x: int, y: int, id, color):
         bx, by = self.coordToPixel(x, y)
@@ -82,7 +83,7 @@ class RGBStyle(Style):
         self.canvas.coords(id, bx, by, bx + self.pixelSize, by + self.pixelSize)
         return id
 
-    def drawPiece(self, piece: Piece):
+    def drawPiece(self, piece: Piece, isActive=False):
         index = 0
         blocks = []
         for x, y in piece.getCoords():
@@ -99,6 +100,30 @@ class RGBStyle(Style):
             )
             blocks.append(b)
             index += 1
+
+        if not isActive:
+            return blocks
+
+        originalY = piece.y
+        while self.grid.tryFit(piece):
+            piece.y += 1
+        piece.y -= 1
+
+        index = 0
+        for x, y in piece.getCoords():
+            id = self.drawBlock(
+                piece.x + x,
+                piece.y + y,
+                self.previewPieces[index] if index < len(self.previewPieces) else None,
+                self.getColor(piece.type),
+            )
+            # Make preview piece transparent
+            self.canvas.itemconfig(id, stipple="gray12")
+
+            if id not in self.previewPieces:
+                self.previewPieces.append(id)
+            index += 1
+        piece.y = originalY
         return blocks
 
     def drawBoundaries(self):
@@ -158,22 +183,22 @@ class RGBStyle(Style):
             case PType.Z:
                 return "red"
 
-    def clearLine(self, y: int, blocks: set[Block]):
+    def clearLine(self, y: int):
         for by in range(y):
-            if not any(blocks[by]):
+            if not any(self.grid.blocks[by]):
                 continue
-            for block in blocks[by]:
+            for block in self.grid.blocks[by]:
                 if not block:
                     continue
                 block.y += 1
                 self.drawBlock(
                     block.x, block.y, block.id, self.getColor(block.piece.type)
                 )
-        for bx in range(len(blocks[y])):
-            if blocks[y][bx] is None:
+        for bx in range(len(self.grid.blocks[y])):
+            if self.grid.blocks[y][bx] is None:
                 continue
-            self.canvas.delete(blocks[y][bx].id)
-            blocks[y][bx] = None
+            self.canvas.delete(self.grid.blocks[y][bx].id)
+            self.grid.blocks[y][bx] = None
 
     def clearBoard(self):
         self.canvas.delete("all")

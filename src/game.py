@@ -40,7 +40,11 @@ class Game:
                 if not block:
                     continue
                 if block.x != x or block.y != y:
-                    print("Block out of place:", block.y, y)
+                    print(
+                        "{} Block out of place internal: {}, grid: {}".format(
+                            x, block.y, y
+                        )
+                    )
 
         gs = self.grid.toString()
         bs = self.grid.blocksToString()
@@ -56,7 +60,7 @@ class Game:
     def checkClear(self):
         line = self.grid.getClearLine()
         while line != -1:
-            self.style.clearLine(line, self.grid.blocks)
+            self.style.clearLine(line)
             self.grid.clearLine(line)
             line = self.grid.getClearLine()
 
@@ -72,7 +76,7 @@ class Game:
 
     def render(self):
         if self.activePiece:
-            self.activePiece.blocks = self.style.drawPiece(self.activePiece)
+            self.activePiece.blocks = self.style.drawPiece(self.activePiece, True)
 
     def generatePiece(self):
         type = self.getNextPiece()
