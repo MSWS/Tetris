@@ -33,6 +33,15 @@ class Game:
                 self.failTicks = 0
         else:
             self.failTicks = 0
+
+        for y in range(self.grid.height):
+            for x in range(self.grid.width):
+                block = self.grid.blocks[y][x]
+                if not block:
+                    continue
+                if block.x != x or block.y != y:
+                    print("Block out of place:", block.y, y)
+
         gs = self.grid.toString()
         bs = self.grid.blocksToString()
         if gs != bs:
@@ -42,7 +51,6 @@ class Game:
             print("Blocks:")
             print(bs)
         elif gs != self.lastGrid:
-            # print(bs)
             self.lastGrid = gs
 
     def checkClear(self):
@@ -94,6 +102,7 @@ class Game:
             return
         lastCoord = (self.activePiece.x, self.activePiece.y)
         lastRotate = self.activePiece.rotation
+        targetRotation = lastRotate
         match event.keysym.lower():
             case "left":
                 self.activePiece.x -= 1
@@ -111,13 +120,12 @@ class Game:
             case "down":  # Soft drop
                 self.activePiece.y += 1
             case "z":
-                self.activePiece.rotate(False)
+                targetRotation = (self.activePiece.rotation + 3) % 4
             case "x":
-                self.activePiece.rotate(True)
+                targetRotation = (self.activePiece.rotation + 1) % 4
             case _:
                 print("Unknown key:", event.keysym.lower())
-        if not self.grid.tryFit(
-            self.activePiece, 0 if lastRotate != self.activePiece.rotation else -1
-        ):
+        if not self.grid.tryFit(self.activePiece, targetRotation):
             self.activePiece.x, self.activePiece.y = lastCoord
-            self.activePiece.setRotate(lastRotate)
+        else:
+            self.activePiece.setRotate(targetRotation)

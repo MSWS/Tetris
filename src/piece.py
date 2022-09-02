@@ -97,7 +97,7 @@ def generatePiece(p: PType, rot: int = 0):
                 case 2:
                     return (0, 0, 1, 2), (2, 1, 1, 1)
                 case 3:
-                    return (0, 1, 2, 2), (0, 0, 1, 2)
+                    return (0, 1, 1, 1), (0, 0, 1, 2)
         case PType.O:
             return (1, 2, 1, 2), (0, 0, 1, 1)
         case PType.S:
@@ -130,3 +130,4 @@ def generatePiece(p: PType, rot: int = 0):
                     return (0, 1, 1, 2), (1, 1, 2, 2)
                 case 3:
                     return (0, 0, 1, 1), (1, 2, 0, 1)
+    raise Exception("Could not calculate piece of {} with rotation {}".format(p, rot))
