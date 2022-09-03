@@ -30,6 +30,7 @@ class Game:
             self.activePiece.y -= 1
             self.failTicks += 1
             if self.failTicks > 3:
+                self.activePiece.blocks = self.style.drawPiece(self.activePiece)
                 self.grid.addPiece(self.activePiece)
                 self.checkClear()
                 self.activePiece = None
