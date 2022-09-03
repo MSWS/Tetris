@@ -8,6 +8,7 @@ from style import RGBStyle
 
 def main():
     window = tk.Tk()
+    window.title("Tetris")
     grid = Grid(10, 20)
     canvas = tk.Canvas(window, width=400, height=500)
     canvas.pack()
