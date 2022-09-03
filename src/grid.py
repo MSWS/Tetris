@@ -29,6 +29,7 @@ class Grid:
         self.height = height
         self.grid = [[False for y in range(width)] for x in range(height)]
         self.blocks = [[None for y in range(width)] for x in range(height)]
+        self.toDelete = []
 
     def getGrid(self):
         return self.grid
@@ -92,14 +93,20 @@ class Grid:
                 piece.x + x, piece.y + y
             )
 
-    def clearLine(self, y: int):
-        self.grid[y] = [False for x in range(self.width)]
-        gridCopy = self.grid.copy()
-        blockCopy = self.blocks.copy()
-        for by in range(1, y + 1):
-            self.grid[by] = gridCopy[by - 1]
-            self.blocks[by] = blockCopy[by - 1]
-        self.grid[0] = [False for x in range(self.width)]
+    def clearLines(self):
+        for y in range(self.height):
+            if not all(self.grid[y]):
+                continue
+            self.grid.pop(y)
+            self.grid.insert(0, [False for x in range(self.width)])
+            self.toDelete += self.blocks.pop(y)
+            self.blocks.insert(0, [None for x in range(self.width)])
+
+            for yy in range(y + 1):
+                for block in self.blocks[yy]:
+                    if block:
+                        block.y += 1
+            y -= 1
 
     def getClearLine(self, start=0):
         for y in range(start, self.height):

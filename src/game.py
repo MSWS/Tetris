@@ -58,11 +58,8 @@ class Game:
             self.lastGrid = gs
 
     def checkClear(self):
-        line = self.grid.getClearLine()
-        while line != -1:
-            self.style.clearLine(line)
-            self.grid.clearLine(line)
-            line = self.grid.getClearLine()
+        self.grid.clearLines()
+        self.style.clearLines()
 
     def reset(self):
         self.grid.clear()

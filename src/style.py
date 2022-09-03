@@ -33,7 +33,7 @@ class Style(ABC):
         pass
 
     @abstractmethod
-    def clearLine(self, y: int, pieces: list):
+    def clearLines(self):
         pass
 
     @abstractmethod
@@ -70,7 +70,6 @@ class RGBStyle(Style):
 
     def drawBlock(self, x: int, y: int, id, color):
         bx, by = self.coordToPixel(x, y)
-
         if not id:
             id = self.canvas.create_rectangle(
                 bx, by, bx + self.pixelSize, by + self.pixelSize, fill=color
@@ -183,26 +182,22 @@ class RGBStyle(Style):
             case PType.Z:
                 return "red"
 
-    def clearLine(self, y: int):
-        for by in range(y):
-            if not any(self.grid.blocks[by]):
-                continue
+    def clearLines(self):
+        for block in self.grid.toDelete:
+            self.canvas.delete(block.id)
+        self.grid.toDelete = []
+        for by in range(self.grid.height):
             for block in self.grid.blocks[by]:
                 if not block:
                     continue
-                block.y += 1
                 self.drawBlock(
                     block.x, block.y, block.id, self.getColor(block.piece.type)
                 )
-        for bx in range(len(self.grid.blocks[y])):
-            if self.grid.blocks[y][bx] is None:
-                continue
-            self.canvas.delete(self.grid.blocks[y][bx].id)
-            self.grid.blocks[y][bx] = None
 
     def clearBoard(self):
         self.canvas.delete("all")
         self.nextPieces = []
+        self.previewPieces = []
 
     def drawNext(self, pieces: list[PType]):
         for i in range(min(len(pieces), 4)):
