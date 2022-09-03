@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 from tkinter import Canvas
+from zoneinfo import InvalidTZPathWarning
 from grid import Grid
 from piece import Block, PType, Piece, generatePiece
 
@@ -64,12 +65,24 @@ class RGBStyle(Style):
     def __init__(self, grid: Grid, canvas: Canvas) -> None:
         super().__init__(grid)
         self.canvas = canvas
+        self.initWindow()
+        self.nextPieces = []
+        self.previewBlocks = []
+        self.canvas.bind("<Configure>", self.onResize, add=True)
+        self.activePiece = None
+
+    def onResize(self, event):
+        self.initWindow()
+        self.drawBoundaries()
+        self.forceRefresh()
+
+    def initWindow(self):
         self.gridStart = (0, 0)
         self.width, self.height = (
             self.canvas.winfo_reqwidth(),
             self.canvas.winfo_reqheight(),
         )
-        self.gridStop = (int(self.width * 0.8), self.height)
+        self.gridStop = (int(self.width * 0.8), int(self.height))
         self.pixelSize = min(
             (self.gridStop[0] - self.gridStart[0]) / self.grid.width,
             (self.gridStop[1] - self.gridStart[1]) / self.grid.height,
@@ -78,8 +91,6 @@ class RGBStyle(Style):
             self.pixelSize * self.grid.width,
             self.pixelSize * self.grid.height,
         )
-        self.nextPieces = []
-        self.previewPieces = []
 
     def drawBlock(self, x: int, y: int, id, color) -> str:
         bx, by = self.coordToPixel(x, y)
@@ -115,7 +126,7 @@ class RGBStyle(Style):
 
         if not isActive:
             return blocks
-
+        self.activePiece = piece
         originalY = piece.y
         while self.grid.tryFit(piece):
             piece.y += 1
@@ -123,41 +134,78 @@ class RGBStyle(Style):
 
         index = 0
         for x, y in piece.getCoords():
-            id = self.drawBlock(
+            block = Block(
+                piece,
                 piece.x + x,
                 piece.y + y,
-                self.previewPieces[index] if index < len(self.previewPieces) else None,
-                self.getColor(piece.type),
+                self.drawBlock(
+                    piece.x + x,
+                    piece.y + y,
+                    self.previewBlocks[index].id
+                    if index < len(self.previewBlocks)
+                    else None,
+                    self.getColor(piece.type),
+                ),
             )
             # Make preview piece transparent
-            self.canvas.itemconfig(id, stipple="gray12")
-
-            if id not in self.previewPieces:
-                self.previewPieces.append(id)
+            self.canvas.itemconfig(block.id, stipple="gray12")
+            if index >= len(self.previewBlocks):
+                self.previewBlocks.append(block)
+            else:
+                self.previewBlocks[index] = block
             index += 1
         piece.y = originalY
         return blocks
 
     def drawBoundaries(self) -> None:
-        self.canvas.create_rectangle(
-            0, 0, self.width, self.height, fill="#333", outline="#ddd"
-        )
-        self.canvas.create_rectangle(
-            self.gridStart[0],
-            self.gridStart[1],
-            self.gridStop[0] - self.gridStart[0],
-            self.gridStop[1] - self.gridStart[1],
-            fill="gray",
-        )
+        item = self.canvas.find_withtag("mainbg")
+        if item:
+            # Change dimensions
+            self.canvas.coords(item, 0, 0, self.width, self.height)
+        else:
+            self.canvas.create_rectangle(
+                0,
+                0,
+                self.width,
+                self.height,
+                fill="#333",
+                outline="#ddd",
+                tags="mainbg",
+            )
+
+        item = self.canvas.find_withtag("gridbg")
+
+        if item:
+            # Change dimensions
+            self.canvas.coords(
+                item,
+                *self.gridStart,
+                self.gridStop[0] - self.gridStart[0],
+                self.gridStop[1] - self.gridStart[1],
+            )
+        else:
+            self.canvas.create_rectangle(
+                *self.gridStart,
+                self.gridStop[0] - self.gridStart[0],
+                self.gridStop[1] - self.gridStart[1],
+                fill="gray",
+                tags="gridbg",
+            )
         # Draw y coordinates
         for y in range(self.grid.height):
-            self.canvas.create_text(
-                self.gridStop[0] + 15,
-                self.gridStart[1] + y * self.pixelSize,
-                text=str(y),
-                anchor="ne",
-                fill="white",
-            )
+            item = self.canvas.find_withtag("gridtext{}".format(y))
+            tx, ty = self.gridStop[0] + 15, self.gridStart[1] + y * self.pixelSize
+            if item:
+                self.canvas.coords(item, tx, ty)
+            else:
+                self.canvas.create_text(
+                    self.gridStop[0] + 15,
+                    self.gridStart[1] + y * self.pixelSize,
+                    text=str(y),
+                    anchor="ne",
+                    fill="white",
+                    tags="gridtext" + str(y),
+                )
 
     def coordToPixel(self, x, y) -> tuple[int, int]:
         return (
@@ -165,8 +213,8 @@ class RGBStyle(Style):
             y * self.pixelSize + self.gridStart[1],
         )
 
-    def pixelToCoord(self, x, y) -> tuple[int, int]:
-        if (
+    def pixelToCoord(self, x, y, ignoreUnsafe=False) -> tuple[int, int]:
+        if not ignoreUnsafe and (
             x < self.gridStart[0]
             or x > self.gridStop[0]
             or y < self.gridStart[1]
@@ -210,7 +258,7 @@ class RGBStyle(Style):
     def clearBoard(self) -> None:
         self.canvas.delete("all")
         self.nextPieces = []
-        self.previewPieces = []
+        self.previewBlocks = []
 
     def drawNext(self, pieces: list[PType]) -> None:
         for i in range(min(len(pieces), 4)):
@@ -219,8 +267,57 @@ class RGBStyle(Style):
             if not next:
                 next = Piece(self.grid.width, self, type)
                 self.nextPieces.append(next)
-            next.x = self.grid.width + 1
-            next.y = i * 4 + 1
+            x, y = self.pixelToCoord(
+                self.gridStop[0] + self.pixelSize * 2,
+                ((i + 1) * self.pixelSize * 4),
+                True,
+            )
+            next.x = x
+            next.y = y
             next.type = type
             next.grid = generatePiece(next.type)
             self.drawPiece(next)
+
+    def forceRefresh(self) -> None:
+        for row in self.grid.blocks:
+            for block in row:
+                if not block:
+                    continue
+                self.canvas.delete(block.id)
+                block.id = self.drawBlock(
+                    block.x, block.y, None, self.getColor(block.piece.type)
+                )
+        self.clearLines()  # Forces the grid to refresh
+        for next in self.nextPieces:
+            if not next:
+                continue
+            for block in next.blocks:
+                if not block:
+                    continue
+                self.canvas.delete(block.id)
+            next.blocks = []
+            next.blocks = self.drawPiece(next)
+        for block in self.previewBlocks:
+            self.canvas.delete(block.id)
+            block.id = self.drawBlock(
+                block.x, block.y, None, self.getColor(block.piece.type)
+            )
+            self.canvas.itemconfig(block.id, stipple="gray12")
+        if self.activePiece:
+            self.drawPiece(self.activePiece)
+
+
+class ResizingCanvas(Canvas):  # https://stackoverflow.com/a/22837522
+    def __init__(self, parent, **kwargs):
+        Canvas.__init__(self, parent, **kwargs)
+        self.bind("<Configure>", self.on_resize)
+        self.height = self.winfo_reqheight()
+        self.width = self.winfo_reqwidth()
+
+    def on_resize(self, event):
+        wscale = float(event.width) / self.width
+        hscale = float(event.height) / self.height
+        self.width = event.width
+        self.height = event.height
+        self.config(width=self.width, height=self.height)
+        self.scale("all", 0, 0, wscale, hscale)
