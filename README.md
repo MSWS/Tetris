@@ -12,3 +12,5 @@ Basic Tetris recreation in Python, primarily meant for practice and familiarity 
 - [ ] Automatic resizing of game when window is resized
 - [ ] Music / Sound Effects
 - [ ] Scoring
+
+![Image](https://i.imgur.com/ANYbpjh.png)
