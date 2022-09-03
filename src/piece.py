@@ -1,4 +1,3 @@
-from distutils.log import error
 from enum import Enum, auto
 
 
@@ -13,6 +12,8 @@ class PType(Enum):
 
 
 class Piece:
+    """Represents a whole Piece that contains its type, (drawn) blocks, rotation, position, and coordinates"""
+
     def __init__(self, x: int, style, type: PType) -> None:
         self.type = type
         self.rotation = 0
@@ -23,18 +24,25 @@ class Piece:
         self.blocks = style.drawPiece(self)
 
     def getCoords(self) -> list[tuple[int, int]]:
+        """Gets the coordinates that needed to draw at, see generateCoords"""
         coords = []
         for i in range(4):
             coords.append((self.grid[0][i], self.grid[1][i]))
         return coords
 
-    def getBlock(self, x, y) -> Block:
+    def getBlock(self, x, y):
+        """Get the (drawn) block at the specific GLOBAL coordinates
+        throws an exception if no block belonging to the piece exists
+        """
         for block in self.blocks:
             if block.x == x and block.y == y:
                 return block
         raise Exception("Block not found at {}, {}".format(x, y))
 
     def rotate(self, counter=True) -> None:
+        """Rotates the piece either clockwise or counter-clockwise
+        and then updates the piece's grid
+        """
         self.rotation += 1 if counter else -1
         if self.rotation < 0:
             self.rotation = 3
@@ -42,6 +50,9 @@ class Piece:
         self.grid = generatePiece(self.type, self.rotation)
 
     def setRotate(self, rotation: int) -> None:
+        """Sets the rotation of the piece to the specified rotation, similar to rotate"""
+        if self.rotate == rotation:
+            return
         self.rotation = rotation
         self.grid = generatePiece(self.type, self.rotation)
 
@@ -50,6 +61,8 @@ class Piece:
 
 
 class Block:
+    """Data wrapper for a drawn block, holding the parent piece, x, y, and an arbitrary ID"""
+
     def __init__(self, piece: Piece, x: int, y: int, id) -> None:
         self.piece = piece
         self.x = x
@@ -58,6 +71,7 @@ class Block:
 
 
 def generateCoords(p: PType, rot: int = 0) -> list[tuple[int, int]]:
+    """Generates the (drawing) coordinates of a piece with the specified type and rotation"""
     grid = generatePiece(p, rot)
     coords = []
     for i in range(4):
@@ -66,6 +80,7 @@ def generateCoords(p: PType, rot: int = 0) -> list[tuple[int, int]]:
 
 
 def generatePiece(p: PType, rot: int = 0) -> tuple[tuple[int], tuple[int]]:
+    """Generates the relative gamepay coordsintes of a piece with the specified type and rotation"""
     rot %= 4
     match p:
         case PType.I:

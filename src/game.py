@@ -5,6 +5,10 @@ from style import Style
 
 
 class Game:
+    """Primary Game State Instance
+    Responsible for handling game controls and logic
+    """
+
     def __init__(self, style: Style, grid: Grid) -> None:
         self.style = style
         self.grid = grid
@@ -50,6 +54,7 @@ class Game:
         self.style.clearLines()
 
     def reset(self) -> None:
+        """Resets the game board, primarily meant for when the player tops out"""
         self.grid.clear()
         self.style.clearBoard()
         self.activePiece = None
@@ -64,11 +69,13 @@ class Game:
             self.activePiece.blocks = self.style.drawPiece(self.activePiece, True)
 
     def generatePiece(self) -> Piece:
+        """Generates the next piece to be used using the 7-bag system"""
         type = self.getNextPiece()
         self.style.drawNext(self.bag)
         return Piece(self.grid.width // 2 - 1, self.style, type)
 
     def getNextPiece(self) -> PType:
+        """Gets the next PType to be used, does NOT generate a new Piece"""
         if len(self.bag) == 0:
             self.bag = list(PType)
             random.shuffle(self.bag)
@@ -77,7 +84,6 @@ class Game:
             if piece in toMake:
                 toMake.remove(piece)
 
-        print(len(self.bag), self.bag)
         self.bag.insert(0, toMake[0] if len(toMake) > 0 else random.choice(list(PType)))
         return self.bag.pop()
 
@@ -115,6 +121,8 @@ class Game:
             case _:
                 print("Unknown key:", event.keysym.lower())
         if not self.grid.tryFit(self.activePiece, targetRotation):
+            # Piece did not fit, revert to last position
             self.activePiece.x, self.activePiece.y = lastCoord
         else:
+            # Piece successfully fit, update rotation if needed
             self.activePiece.setRotate(targetRotation)

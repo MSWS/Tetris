@@ -5,6 +5,8 @@ from piece import Block, PType, Piece, generatePiece
 
 
 class Style(ABC):
+    """An abstract class to allow for multiple styles of Tetris"""
+
     name = "Undefined"
 
     def __init__(self, grid: Grid):
@@ -12,34 +14,47 @@ class Style(ABC):
 
     @abstractmethod
     def drawPiece(self, piece: Piece, isActive=False) -> list[Block]:
+        """Draws the specified piece on the canvas using its internal coordinates
+        isActive is intended to allow for support for shadow/preview pieces
+        """
         pass
 
     @abstractmethod
     def drawBoundaries(self) -> None:
+        """Draws the boundaries of the grid, can also be used to stylize
+        boundaries, grid, etc."""
         pass
 
     @abstractmethod
     def drawBlock(self, x, y) -> str:
+        """Intended to draw a single block at a given coordinate, should be a generic method that
+        returns a string ID that can be used to update the block later
+        """
         pass
 
     @abstractmethod
     def coordToPixel(self, x, y) -> tuple[int, int]:
+        """Converts a coordinate to a pixel"""
         pass
 
     @abstractmethod
     def pixelToCoord(self, x, y) -> tuple[int, int]:
+        """Converts a pixel to a coordinate"""
         pass
 
     @abstractmethod
     def clearLines(self) -> None:
+        """Clears the lines that have been filled, called AFTER grid clearLines is called"""
         pass
 
     @abstractmethod
     def clearBoard(self) -> None:
+        """Clears the entire board, should reset the board to an empty grid"""
         pass
 
     @abstractmethod
     def drawNext(self, pieces: list[PType]) -> None:
+        """Draws the next pieces in the queue"""
         pass
 
 
