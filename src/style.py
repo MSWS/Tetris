@@ -1,9 +1,7 @@
 from abc import ABC, abstractmethod
-import asyncio
-import threading
 from tkinter import Canvas
 from grid import Grid
-from piece import Block, PType, Piece, generateCoords, generatePiece
+from piece import Block, PType, Piece, generatePiece
 
 
 class Style(ABC):
@@ -13,42 +11,42 @@ class Style(ABC):
         self.grid = grid
 
     @abstractmethod
-    def drawPiece(self, piece: Piece, isActive=False) -> list:
+    def drawPiece(self, piece: Piece, isActive=False) -> list[Block]:
         pass
 
     @abstractmethod
-    def drawBoundaries(self):
+    def drawBoundaries(self) -> None:
         pass
 
     @abstractmethod
-    def drawBlock(self, x, y):
+    def drawBlock(self, x, y) -> str:
         pass
 
     @abstractmethod
-    def coordToPixel(self, x, y):
+    def coordToPixel(self, x, y) -> tuple[int, int]:
         pass
 
     @abstractmethod
-    def pixelToCoord(self, x, y):
+    def pixelToCoord(self, x, y) -> tuple[int, int]:
         pass
 
     @abstractmethod
-    def clearLines(self):
+    def clearLines(self) -> None:
         pass
 
     @abstractmethod
-    def clearBoard(self):
+    def clearBoard(self) -> None:
         pass
 
     @abstractmethod
-    def drawNext(self, pieces: list[PType]):
+    def drawNext(self, pieces: list[PType]) -> None:
         pass
 
 
 class RGBStyle(Style):
     name = "RGB"
 
-    def __init__(self, grid: Grid, canvas: Canvas):
+    def __init__(self, grid: Grid, canvas: Canvas) -> None:
         super().__init__(grid)
         self.canvas = canvas
         self.gridStart = (0, 0)
@@ -68,7 +66,7 @@ class RGBStyle(Style):
         self.nextPieces = []
         self.previewPieces = []
 
-    def drawBlock(self, x: int, y: int, id, color):
+    def drawBlock(self, x: int, y: int, id, color) -> str:
         bx, by = self.coordToPixel(x, y)
         if not id:
             id = self.canvas.create_rectangle(
@@ -82,7 +80,7 @@ class RGBStyle(Style):
         self.canvas.coords(id, bx, by, bx + self.pixelSize, by + self.pixelSize)
         return id
 
-    def drawPiece(self, piece: Piece, isActive=False):
+    def drawPiece(self, piece: Piece, isActive=False) -> list[Block]:
         index = 0
         blocks = []
         for x, y in piece.getCoords():
@@ -125,7 +123,7 @@ class RGBStyle(Style):
         piece.y = originalY
         return blocks
 
-    def drawBoundaries(self):
+    def drawBoundaries(self) -> None:
         self.canvas.create_rectangle(
             0, 0, self.width, self.height, fill="#333", outline="#ddd"
         )
@@ -146,13 +144,13 @@ class RGBStyle(Style):
                 fill="white",
             )
 
-    def coordToPixel(self, x, y):
+    def coordToPixel(self, x, y) -> tuple[int, int]:
         return (
             x * self.pixelSize + self.gridStart[0],
             y * self.pixelSize + self.gridStart[1],
         )
 
-    def pixelToCoord(self, x, y):
+    def pixelToCoord(self, x, y) -> tuple[int, int]:
         if (
             x < self.gridStart[0]
             or x > self.gridStop[0]
@@ -165,7 +163,7 @@ class RGBStyle(Style):
             int((y - self.gridStart[1]) / self.pixelSize),
         )
 
-    def getColor(self, type: PType):
+    def getColor(self, type: PType) -> str:
         match type:
             case PType.I:
                 return "cyan"
@@ -182,7 +180,7 @@ class RGBStyle(Style):
             case PType.Z:
                 return "red"
 
-    def clearLines(self):
+    def clearLines(self) -> None:
         for block in self.grid.toDelete:
             self.canvas.delete(block.id)
         self.grid.toDelete = []
@@ -194,12 +192,12 @@ class RGBStyle(Style):
                     block.x, block.y, block.id, self.getColor(block.piece.type)
                 )
 
-    def clearBoard(self):
+    def clearBoard(self) -> None:
         self.canvas.delete("all")
         self.nextPieces = []
         self.previewPieces = []
 
-    def drawNext(self, pieces: list[PType]):
+    def drawNext(self, pieces: list[PType]) -> None:
         for i in range(min(len(pieces), 4)):
             next = self.nextPieces[i] if i < len(self.nextPieces) else None
             type = pieces[len(pieces) - 1 - i]

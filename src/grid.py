@@ -24,20 +24,20 @@ class Grid:
         [(-1, 0), (2, 0), (-1, 2), (2, -1)],  # 0>>3
     ]
 
-    def __init__(self, width: int, height: int):
+    def __init__(self, width: int, height: int) -> None:
         self.width = width
         self.height = height
         self.grid = [[False for y in range(width)] for x in range(height)]
         self.blocks = [[None for y in range(width)] for x in range(height)]
         self.toDelete = []
 
-    def getGrid(self):
+    def getGrid(self) -> list[list[bool]]:
         return self.grid
 
-    def isBlock(self, x: int, y: int):
+    def isBlock(self, x: int, y: int) -> bool:
         return self.grid[y][x]
 
-    def tryFit(self, piece: Piece, rotation=None):
+    def tryFit(self, piece: Piece, rotation=None) -> bool:
         fits = True
         coords = generateCoords(
             piece.type, rotation if rotation is not None else piece.rotation
@@ -75,7 +75,7 @@ class Grid:
             piece.setRotate(oldRotation)
         return False
 
-    def getTestIndex(self, oldRot: int, newRot: int):
+    def getTestIndex(self, oldRot: int, newRot: int) -> int:
         match oldRot:
             case 0:
                 return 0 if newRot == 1 else 7
@@ -86,14 +86,14 @@ class Grid:
             case 3:
                 return 5 if newRot == 2 else 6
 
-    def addPiece(self, piece: Piece):
+    def addPiece(self, piece: Piece) -> None:
         for x, y in piece.getCoords():
             self.grid[piece.y + y][piece.x + x] = True
             self.blocks[piece.y + y][piece.x + x] = piece.getBlock(
                 piece.x + x, piece.y + y
             )
 
-    def clearLines(self):
+    def clearLines(self) -> None:  # Todo: Add return value
         for y in range(self.height):
             if not all(self.grid[y]):
                 continue
@@ -108,28 +108,6 @@ class Grid:
                         block.y += 1
             y -= 1
 
-    def getClearLine(self, start=0):
-        for y in range(start, self.height):
-            if all(self.grid[y]):
-                return y
-        return -1
-
-    def clear(self):
+    def clear(self) -> None:
         self.grid = [[False for y in range(self.width)] for x in range(self.height)]
         self.blocks = [[None for y in range(self.width)] for x in range(self.height)]
-
-    def toString(self):
-        string = ""
-        for y in range(self.height):
-            for x in range(self.width):
-                string += "X" if self.grid[y][x] else " "
-            string += "\n"
-        return string
-
-    def blocksToString(self):
-        string = ""
-        for y in range(self.height):
-            for x in range(self.width):
-                string += "X" if self.grid[y][x] else " "
-            string += "\n"
-        return string

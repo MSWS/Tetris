@@ -13,7 +13,7 @@ class PType(Enum):
 
 
 class Piece:
-    def __init__(self, x: int, style, type: PType):
+    def __init__(self, x: int, style, type: PType) -> None:
         self.type = type
         self.rotation = 0
         self.grid = generatePiece(type, self.rotation)
@@ -22,42 +22,42 @@ class Piece:
         self.blocks = []
         self.blocks = style.drawPiece(self)
 
-    def getCoords(self):
+    def getCoords(self) -> list[tuple[int, int]]:
         coords = []
         for i in range(4):
             coords.append((self.grid[0][i], self.grid[1][i]))
         return coords
 
-    def getBlock(self, x, y):
+    def getBlock(self, x, y) -> Block:
         for block in self.blocks:
             if block.x == x and block.y == y:
                 return block
         raise Exception("Block not found at {}, {}".format(x, y))
 
-    def rotate(self, counter=True):
+    def rotate(self, counter=True) -> None:
         self.rotation += 1 if counter else -1
         if self.rotation < 0:
             self.rotation = 3
         self.rotation %= 4
         self.grid = generatePiece(self.type, self.rotation)
 
-    def setRotate(self, rotation: int):
+    def setRotate(self, rotation: int) -> None:
         self.rotation = rotation
         self.grid = generatePiece(self.type, self.rotation)
 
-    def clearBlock(self, block):
+    def clearBlock(self, block) -> None:
         self.blocks.remove(block)
 
 
 class Block:
-    def __init__(self, piece: Piece, x: int, y: int, id):
+    def __init__(self, piece: Piece, x: int, y: int, id) -> None:
         self.piece = piece
         self.x = x
         self.y = y
         self.id = id
 
 
-def generateCoords(p: PType, rot: int = 0):
+def generateCoords(p: PType, rot: int = 0) -> list[tuple[int, int]]:
     grid = generatePiece(p, rot)
     coords = []
     for i in range(4):
@@ -65,7 +65,7 @@ def generateCoords(p: PType, rot: int = 0):
     return coords
 
 
-def generatePiece(p: PType, rot: int = 0):
+def generatePiece(p: PType, rot: int = 0) -> tuple[tuple[int], tuple[int]]:
     rot %= 4
     match p:
         case PType.I:

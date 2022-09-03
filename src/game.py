@@ -5,15 +5,14 @@ from style import Style
 
 
 class Game:
-    def __init__(self, style: Style, grid: Grid):
+    def __init__(self, style: Style, grid: Grid) -> None:
         self.style = style
         self.grid = grid
         self.reset()
-        self.lastGrid = ""
         self.pause = False
         self.bag = []
 
-    def tick(self):
+    def tick(self) -> None:
         self.ticks += 1
         if self.ticks % 10 != 0 or self.pause:
             return
@@ -46,22 +45,11 @@ class Game:
                         )
                     )
 
-        gs = self.grid.toString()
-        bs = self.grid.blocksToString()
-        if gs != bs:
-            print("Grid and blocks don't match!")
-            print("Grid:")
-            print(gs)
-            print("Blocks:")
-            print(bs)
-        elif gs != self.lastGrid:
-            self.lastGrid = gs
-
-    def checkClear(self):
+    def checkClear(self) -> None:
         self.grid.clearLines()
         self.style.clearLines()
 
-    def reset(self):
+    def reset(self) -> None:
         self.grid.clear()
         self.style.clearBoard()
         self.activePiece = None
@@ -71,16 +59,16 @@ class Game:
         self.alive = True
         self.style.drawBoundaries()
 
-    def render(self):
+    def render(self) -> None:
         if self.activePiece:
             self.activePiece.blocks = self.style.drawPiece(self.activePiece, True)
 
-    def generatePiece(self):
+    def generatePiece(self) -> Piece:
         type = self.getNextPiece()
         self.style.drawNext(self.bag)
         return Piece(self.grid.width // 2 - 1, self.style, type)
 
-    def getNextPiece(self):
+    def getNextPiece(self) -> PType:
         if len(self.bag) == 0:
             self.bag = list(PType)
             random.shuffle(self.bag)
@@ -93,7 +81,7 @@ class Game:
         self.bag.insert(0, toMake[0] if len(toMake) > 0 else random.choice(list(PType)))
         return self.bag.pop()
 
-    def onKey(self, event):
+    def onKey(self, event) -> None:
         if self.activePiece is None:
             return
         if event.keysym.lower() == "space":
