@@ -2,6 +2,7 @@ from enum import Enum, auto
 
 
 class PType(Enum):
+    """Represents the possible types of pieces"""
     I = auto()
     J = auto()
     L = auto()
@@ -12,32 +13,35 @@ class PType(Enum):
 
 
 class Piece:
-    """Represents a whole Piece that contains its type, (drawn) blocks, rotation, position, and coordinates"""
+    """Represents a whole Piece that contains its type,
+      (drawn) blocks, rotation, position, and coordinates
+      """
 
-    def __init__(self, x: int, style, type: PType) -> None:
-        self.type = type
+    def __init__(self, x: int, style, ptype: PType) -> None:
+        self.type = ptype
         self.rotation = 0
-        self.grid = generatePiece(type, self.rotation)
+        self.grid = generate_piece(ptype, self.rotation)
         self.x = x
         self.y = 0
         self.blocks = []
-        self.blocks = style.drawPiece(self)
+        self.blocks = style.draw_piece(self)
 
-    def getCoords(self) -> list[tuple[int, int]]:
+    def get_coords(self) -> list[tuple[int, int]]:
         """Gets the coordinates that needed to draw at, see generateCoords"""
         coords = []
         for i in range(4):
+            #pylint: disable=unsubscriptable-object
             coords.append((self.grid[0][i], self.grid[1][i]))
         return coords
 
-    def getBlock(self, x, y):
+    def get_block(self, x, y):
         """Get the (drawn) block at the specific GLOBAL coordinates
         throws an exception if no block belonging to the piece exists
         """
         for block in self.blocks:
             if block.x == x and block.y == y:
                 return block
-        raise Exception("Block not found at {}, {}".format(x, y))
+        raise Exception(f'Block not found at {x}, {y}')
 
     def rotate(self, counter=True) -> None:
         """Rotates the piece either clockwise or counter-clockwise
@@ -47,42 +51,41 @@ class Piece:
         if self.rotation < 0:
             self.rotation = 3
         self.rotation %= 4
-        self.grid = generatePiece(self.type, self.rotation)
+        self.grid = generate_piece(self.type, self.rotation)
 
-    def setRotate(self, rotation: int) -> None:
+    def set_rotate(self, rotation: int) -> None:
         """Sets the rotation of the piece to the specified rotation, similar to rotate"""
-        if self.rotate == rotation:
+        if self.rotation == rotation:
             return
         self.rotation = rotation
-        self.grid = generatePiece(self.type, self.rotation)
-
-    def clearBlock(self, block) -> None:
-        self.blocks.remove(block)
+        self.grid = generate_piece(self.type, self.rotation)
 
 
 class Block:
     """Data wrapper for a drawn block, holding the parent piece, x, y, and an arbitrary ID"""
 
-    def __init__(self, piece: Piece, x: int, y: int, id) -> None:
+    def __init__(self, piece: Piece, x: int, y: int, uid) -> None:
         self.piece = piece
         self.x = x
         self.y = y
-        self.id = id
+        self.id = uid
 
 
-def generateCoords(p: PType, rot: int = 0) -> list[tuple[int, int]]:
+def generate_coords(_p: PType, rot: int = 0) -> list[tuple[int, int]]:
     """Generates the (drawing) coordinates of a piece with the specified type and rotation"""
-    grid = generatePiece(p, rot)
+    grid = generate_piece(_p, rot)
     coords = []
     for i in range(4):
+        #pylint: disable=unsubscriptable-object
         coords.append((grid[0][i], grid[1][i]))
     return coords
 
 
-def generatePiece(p: PType, rot: int = 0) -> tuple[tuple[int], tuple[int]]:
+# pylint: disable=too-many-return-statements
+def generate_piece(ptype: PType, rot: int = 0) -> tuple[tuple[int], tuple[int]]:
     """Generates the relative gamepay coordsintes of a piece with the specified type and rotation"""
     rot %= 4
-    match p:
+    match ptype:
         case PType.I:
             match rot:
                 case 0:
@@ -145,4 +148,5 @@ def generatePiece(p: PType, rot: int = 0) -> tuple[tuple[int], tuple[int]]:
                     return (0, 1, 1, 2), (1, 1, 2, 2)
                 case 3:
                     return (0, 0, 1, 1), (1, 2, 0, 1)
-    raise Exception("Could not calculate piece of {} with rotation {}".format(p, rot))
+    raise Exception(
+        f'Could not calculate piece of {ptype} with rotation {rot}')
