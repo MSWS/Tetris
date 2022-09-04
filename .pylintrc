@@ -19,4 +19,4 @@ max-returns = 8
 max-parents = 16
 max-attributes = 32
 max-bool-expr = 4
-min-public-methods = 0
+min-public-methods=0

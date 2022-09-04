@@ -1,7 +1,6 @@
 import random
 from grid import Grid
 from piece import PType, Piece
-from scoring import ScoreSystem
 from style import Style
 
 
@@ -18,8 +17,6 @@ class Game:
         self.bag = []
         self.fail_ticks = 0
         self.active_piece = None
-        self.points = 0
-        self.ssystem = ScoreSystem()
 
     def tick(self) -> None:
         """Ticks the game state, called every frame"""
@@ -55,7 +52,6 @@ class Game:
 
     def check_clear(self) -> None:
         """Calls both grid and style clear lines which handles clearing lines"""
-        self.ssystem.add_score(self.grid, self.active_piece)
         self.grid.clear_lines()
         self.style.clear_lines()
 
