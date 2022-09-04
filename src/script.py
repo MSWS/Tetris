@@ -1,4 +1,4 @@
-from random import random
+"""Tetris game written in Python 3.10+ using tkinter for graphics."""
 from time import sleep
 import tkinter as tk
 
@@ -7,7 +7,8 @@ from game import Game
 from style import RGBStyle, ResizingCanvas
 
 
-def main():
+def main() -> None:
+    """Main entry point for the application"""
     window = tk.Tk()
     window.title("Tetris")
     grid = Grid(10, 20)
@@ -18,7 +19,7 @@ def main():
     style = RGBStyle(grid, canvas)
 
     game = Game(style, grid)
-    window.bind("<Key>", game.onKey)
+    window.bind("<Key>", game.on_key)
     canvas.addtag_all("all")
 
     while True:
