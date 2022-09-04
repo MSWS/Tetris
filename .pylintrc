@@ -1,0 +1,22 @@
+[MAIN]
+fail-under=9.5
+
+[MESSAGES CONTROL]
+disable=missing-module-docstring
+
+[REPORTS]
+evaluation=max(0, 0 if fatal else 10.0 - ((float(0.7 * error + 0.2 * warning + 0.08 * refactor + 0.02 * convention) / statement) * 10))
+; evaluation=10.0 - ((float(0.5 * error + warning + refactor + convention) / statement) * 10)
+
+[BASIC]
+good-names=i, j, k, x, y, z, id
+variable-rgx=[a-z_][a-z0-9_]{1,15}$
+
+[DESIGN]
+max-args = 8
+max-locals = 20
+max-returns = 8
+max-parents = 16
+max-attributes = 32
+max-bool-expr = 4
+min-public-methods=0
