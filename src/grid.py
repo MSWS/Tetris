@@ -40,6 +40,8 @@ class Grid:
 
     def is_block(self, x: int, y: int) -> bool:
         """Returns true if the given position has a block"""
+        if x < 0 or x >= self.width or y < 0 or y >= self.height:
+            return True
         return self.grid[y][x]
 
     def try_fit(self, piece: Piece, rotation=None) -> bool:
