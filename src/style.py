@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from tkinter import Canvas
+
 from grid import Grid
-from piece import Block, Piece, PType, generate_coords, generate_piece
+from piece import Block, Piece, PType, generate_piece
 
 
 class Style(ABC):
