@@ -1,6 +1,7 @@
 import random
+
 from grid import Grid
-from piece import PType, Piece, generate_piece
+from piece import Piece, PType
 from style import Style
 
 

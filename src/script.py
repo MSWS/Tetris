@@ -1,10 +1,10 @@
 """Tetris game written in Python 3.10+ using tkinter for graphics."""
-from time import sleep
 import tkinter as tk
+from time import sleep
 
-from grid import Grid
 from game import Game
-from style import RGBStyle, ResizingCanvas
+from grid import Grid
+from style import ResizingCanvas, RGBStyle
 
 
 def main() -> None:

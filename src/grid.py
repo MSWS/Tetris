@@ -1,4 +1,4 @@
-from piece import PType, Piece, generate_coords
+from piece import Piece, PType, generate_coords
 
 
 class Grid:
