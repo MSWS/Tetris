@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from tkinter import Canvas
 from grid import Grid
-from piece import Block, Piece, PType, generate_piece
+from piece import Block, Piece, PType, generate_coords, generate_piece
 
 
 class Style(ABC):
@@ -47,7 +47,11 @@ class Style(ABC):
 
     @abstractmethod
     def draw_next(self, pieces: list[PType]) -> None:
-        """Draws the next pieces in the queue"""
+        """Draws the next piece(s) in the queue"""
+
+    @abstractmethod
+    def draw_hold(self, old_piece: Piece, hold_type: PType) -> None:
+        """Draws the hold piece, old_piece is given to allow for removal"""
 
 
 class RGBStyle(Style):
@@ -60,6 +64,7 @@ class RGBStyle(Style):
         self.init_window()
         self.next_pieces = []
         self.preview_blocks = []
+        self.hold_piece = []
         self.canvas.bind("<Configure>", self.resize, add=True)
         self.active_piece = None
 
@@ -277,6 +282,7 @@ class RGBStyle(Style):
                 ((i + 1) * self.pixel_size * 4),
                 True,
             )
+            y += 1
             next_piece.x = x
             next_piece.y = y
             next_piece.type = ptype
@@ -311,6 +317,19 @@ class RGBStyle(Style):
             self.canvas.itemconfig(block.id, stipple="gray12")
         if self.active_piece:
             self.draw_piece(self.active_piece)
+        if self.hold_piece:
+            self.draw_piece(self.hold_piece)
+
+    def draw_hold(self, old_piece: Piece, hold_type: PType) -> None:
+        for block in old_piece.blocks:
+            self.canvas.delete(block.id)
+        if not self.hold_piece:
+            self.hold_piece = Piece(self.grid.width + 2, self, hold_type)
+            self.hold_piece.y += 1
+        else:
+            self.hold_piece.type = hold_type
+            self.hold_piece.grid = generate_piece(self.hold_piece.type)
+        self.draw_piece(self.hold_piece)
 
 
 class ResizingCanvas(Canvas):  # https://stackoverflow.com/a/22837522

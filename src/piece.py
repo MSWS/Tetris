@@ -71,9 +71,9 @@ class Block:
         self.id = uid
 
 
-def generate_coords(_p: PType, rot: int = 0) -> list[tuple[int, int]]:
+def generate_coords(ptype: PType, rot: int = 0) -> list[tuple[int, int]]:
     """Generates the (drawing) coordinates of a piece with the specified type and rotation"""
-    grid = generate_piece(_p, rot)
+    grid = generate_piece(ptype, rot)
     coords = []
     for i in range(4):
         #pylint: disable=unsubscriptable-object

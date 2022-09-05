@@ -1,6 +1,6 @@
 import random
 from grid import Grid
-from piece import PType, Piece
+from piece import PType, Piece, generate_piece
 from style import Style
 
 
@@ -17,6 +17,8 @@ class Game:
         self.bag = []
         self.fail_ticks = 0
         self.active_piece = None
+        self.hold_piece = None
+        self.swapped_hold = False
 
     def tick(self) -> None:
         """Ticks the game state, called every frame"""
@@ -25,6 +27,7 @@ class Game:
             return
         if self.active_piece is None:
             self.active_piece = self.generate_piece()
+            self.swapped_hold = False
             if not self.grid.try_fit(self.active_piece):
                 self.reset()
             return
@@ -126,6 +129,16 @@ class Game:
                 target_rotation = (self.active_piece.rotation + 3) % 4
             case "x":
                 target_rotation = (self.active_piece.rotation + 1) % 4
+            case "shift_l":
+                if self.swapped_hold:
+                    return
+                self.swapped_hold = True
+                new_type = self.get_next_piece() if not self.hold_piece else self.hold_piece
+                new_piece = Piece(self.grid.width // 2 -
+                                  1, self.style, new_type)
+                self.hold_piece = self.active_piece.type
+                self.style.draw_hold(self.active_piece, self.hold_piece)
+                self.active_piece = new_piece
             case _:
                 print("Unknown key:", event.keysym.lower())
         if not self.grid.try_fit(self.active_piece, target_rotation):
