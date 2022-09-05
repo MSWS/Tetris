@@ -268,6 +268,7 @@ class RGBStyle(Style):
         self.canvas.delete("all")
         self.next_pieces = []
         self.preview_blocks = []
+        self.hold_piece = None
 
     def draw_next(self, pieces: list[PType]) -> None:
         for i in range(min(len(pieces), 4)):
