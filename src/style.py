@@ -177,22 +177,35 @@ class RGBStyle(Style):
             )
 
         item = self.canvas.find_withtag("gridbg")
-
+        width, height = self.grid_stop[0] - \
+            self.grid_start[0], self.grid_stop[1] - self.grid_start[1]
         if item:
             # Change dimensions
             self.canvas.coords(
                 item,
                 *self.grid_start,
-                self.grid_stop[0] - self.grid_start[0],
-                self.grid_stop[1] - self.grid_start[1],
+                width, height
             )
         else:
             self.canvas.create_rectangle(
                 *self.grid_start,
-                self.grid_stop[0] - self.grid_start[0],
-                self.grid_stop[1] - self.grid_start[1],
+                width, height,
                 fill="gray",
                 tags="gridbg",
+            )
+
+        item = self.canvas.find_withtag("holdbg")
+        height = self.pixel_size * 4
+        if item:
+            self.canvas.coords(
+                item, self.grid_stop[0], 0, self.width, height)
+        else:
+            self.canvas.create_rectangle(
+                self.grid_stop[0],
+                0,
+                width, height,
+                fill="#222",
+                tags="holdbg",
             )
         # Draw y coordinates
         for y in range(self.grid.height):
