@@ -203,7 +203,7 @@ class RGBStyle(Style):
             self.canvas.create_rectangle(
                 self.grid_stop[0],
                 0,
-                width, height,
+                self.width, height,
                 fill="#222",
                 tags="holdbg",
             )

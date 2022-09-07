@@ -140,6 +140,9 @@ class Game:
                 self.hold_piece = self.active_piece.type
                 self.style.draw_hold(self.active_piece, self.hold_piece)
                 self.active_piece = new_piece
+            case "r":
+                self.reset()
+                return
             case _:
                 print("Unknown key:", event.keysym.lower())
         if not self.grid.try_fit(self.active_piece, target_rotation):
