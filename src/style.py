@@ -198,13 +198,13 @@ class RGBStyle(Style):
         for y in range(self.grid.height):
             item = self.canvas.find_withtag(f'gridtext{y}')
             tx, ty = self.grid_stop[0] + \
-                15, self.grid_start[1] + y * self.pixel_size
+                35, self.grid_start[1] + y * self.pixel_size
             if item:
                 self.canvas.coords(item, tx, ty)
             else:
                 self.canvas.create_text(
-                    self.grid_stop[0] + 15,
-                    self.grid_start[1] + y * self.pixel_size,
+                    tx,
+                    ty,
                     text=str(y),
                     anchor="ne",
                     fill="white",
