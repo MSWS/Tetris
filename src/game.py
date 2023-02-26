@@ -24,7 +24,7 @@ class Game:
     def tick(self) -> None:
         """Ticks the game state, called every frame"""
         self.ticks += 1
-        if self.ticks % 10 != 0 or self.pause:
+        if self.ticks % 20 != 0 or self.pause:
             return
         if self.active_piece is None:
             self.active_piece = self.generate_piece()

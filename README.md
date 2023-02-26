@@ -13,6 +13,11 @@ Basic Tetris recreation in Python, primarily meant for practice and familiarity 
 - [ ] Music / Sound Effects
 - [ ] Scoring
 - [x] Hold Piece
+- [ ] Better controls
+  - [ ] Holding a key should be quicker
+  - [ ] Holding and rotating should be quicker
+- [ ] Move hold piece to be much less confusing
+- [ ] Pylinting
 
 # Controls
 - Move Tetrimino: Left / Right

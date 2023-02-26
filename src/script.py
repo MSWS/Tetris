@@ -14,7 +14,7 @@ def main() -> None:
     grid = Grid(10, 20)
     frame = tk.Frame(window)
     frame.pack(fill=tk.BOTH, expand=True)
-    canvas = ResizingCanvas(frame, width=400, height=500, highlightthickness=0)
+    canvas = ResizingCanvas(frame, width=800, height=1000, highlightthickness=0)
     canvas.pack(fill=tk.BOTH, expand=True)
     style = RGBStyle(grid, canvas)
 
